@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "Lift",
+			"path": "."
+		},
+		{
+			"name": "Matreshki",
+			"path": "../Matreshki"
+		}
+	],
+	"settings": {}
+}
