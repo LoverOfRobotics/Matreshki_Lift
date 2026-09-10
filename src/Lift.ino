@@ -8,11 +8,11 @@ const uint64_t pipe = 0xA85F57EF29LL;
 byte nextRadioByte = 10;
 void SendRadio(){
   Serial.println("Sending: " + String(nextRadioByte));
-  for (int i = 0; i < 15; i++){
+  for (int i = 0; i < 10; i++){
     // Serial.println("Sending: " + String(nextRadioByte));
     if (radio.write(&nextRadioByte, 1) == false)
       Serial.println("Ошибка");
-    delay(80);
+    delay(50);
   }
   nextRadioByte++;
   delay(250);
@@ -27,7 +27,7 @@ void ClearRadioBuff(){
 void WaitForAllOK(long long timeout_ms = 5000){
   Serial.println("Waiting for all OK"); 
   ClearRadioBuff();
-  delay(1500);    //Ждем, чтоб все предыдущее закончилось
+  delay(1000);    //Ждем, чтоб все предыдущее закончилось
   radio.startListening();
   radio.openReadingPipe(0, pipe);
 
