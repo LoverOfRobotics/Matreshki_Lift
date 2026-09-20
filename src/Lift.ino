@@ -24,7 +24,7 @@ void ClearRadioBuff(){
   radio.read(&receivedData, 1);    // читаем 1 байт
   }
 }
-void WaitForAllOK(long long timeout_ms = 5000){
+void WaitForAllOK(long long timeout_ms = 15000){
   Serial.println("Waiting for all OK"); 
   ClearRadioBuff();
   delay(1000);    //Ждем, чтоб все предыдущее закончилось
@@ -79,7 +79,7 @@ void setup() {
   radio.begin();
   radio.setChannel(0x67);
   radio.setDataRate(RF24_250KBPS);   // скорость 1 Мбит/с
-  radio.setPALevel(RF24_PA_HIGH);    	// Уровень питания усилителя RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX ((RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm).
+  radio.setPALevel(RF24_PA_MAX);    	// Уровень питания усилителя RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX ((RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm).
   radio.setAutoAck(false);
   radio.setPayloadSize(1);
   radio.openWritingPipe(pipe);
