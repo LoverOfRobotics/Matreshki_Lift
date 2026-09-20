@@ -20,16 +20,16 @@ long now_tachos = 0;
 long tachos_down = 5000;   //Модуль числа
 
 const byte ramp_open = 30;
-const byte ramp_closed = 150;
+const byte ramp_closed = 130;
 
 byte nextRadioByte = 10;
 void SendRadio(){
   Serial.println("Sending: " + String(nextRadioByte));
-  for (int i = 0; i < 15; i++){
+  for (int i = 0; i < 10; i++){
     // Serial.println("Sending: " + String(nextRadioByte));
     if (radio.write(&nextRadioByte, 1) == false)
       Serial.println("Ошибка");
-    delay(80);
+    delay(50);
   }
   nextRadioByte++;
   delay(250);
@@ -44,7 +44,7 @@ void ClearRadioBuff(){
 void WaitForAllOK(long long timeout_ms = 5000){
   Serial.println("Waiting for all OK"); 
   ClearRadioBuff();
-  delay(1500);    //Ждем, чтоб все предыдущее закончилось
+  delay(1000);    //Ждем, чтоб все предыдущее закончилось
   radio.startListening();
   radio.openReadingPipe(0, pipe);
 
@@ -161,7 +161,7 @@ void setup() {
   radio.begin();
   radio.setChannel(0x67);
   radio.setDataRate(RF24_250KBPS);   // скорость 1 Мбит/с
-  radio.setPALevel(RF24_PA_MAX);    	// Уровень питания усилителя RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX ((RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm).
+  radio.setPALevel(RF24_PA_HIGH);    	// Уровень питания усилителя RF24_PA_MIN, RF24_PA_LOW, RF24_PA_HIGH and RF24_PA_MAX ((RF24_PA_MIN=-18dBm, RF24_PA_LOW=-12dBm, RF24_PA_HIGH=-6dBm, RF24_PA_MAX=0dBm).
   radio.setAutoAck(false);
   radio.setPayloadSize(1);
   radio.openWritingPipe(pipe);
@@ -181,10 +181,8 @@ void setup() {
   pinMode(Button, INPUT_PULLUP);
 
   rampServo.attach(ServoPin);
-  rampServo.write(90);
-
-  while (true) {};
-  // rampServo.write(ramp_closed);
+  
+  rampServo.write(ramp_closed);
 
 
   //Поднятие в начале
@@ -194,11 +192,11 @@ void setup() {
   delay(250);
 
   //===Код для демонстрации===
-  while (digitalRead(Button) == 1) {}
-  Serial.println("Button");
-  SendRadio();
-  nextRadioByte = 10;
-  delay(400);
+  // while (digitalRead(Button) == 1) {}
+  // Serial.println("Button");
+  // SendRadio();
+  // nextRadioByte = 10;
+  // delay(400);
   
   while (digitalRead(Button) == 1) {}
   Serial.println("Button");
