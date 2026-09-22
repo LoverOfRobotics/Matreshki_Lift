@@ -19,8 +19,8 @@ volatile long MotTachos = 0;
 long now_tachos = 0;
 long tachos_down = 5000;   //Модуль числа
 
-const byte ramp_open = 30;
-const byte ramp_closed = 130;
+const byte ramp_open = 20;
+const byte ramp_closed = 122;
 
 byte nextRadioByte = 10;
 void SendRadio(){
