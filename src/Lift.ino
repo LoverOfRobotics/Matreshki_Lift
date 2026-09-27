@@ -13,6 +13,11 @@ const uint64_t pipe = 0xA85F57EF29LL;
 #define ServoPin 8
 #define Button 7
 
+#define LED_GREEN A5
+#define LED_YELLOW A4
+#define LED_RED A3
+#define LED_BLUE A2
+
 Servo rampServo;
 
 volatile long MotTachos = 0;
@@ -42,6 +47,7 @@ void ClearRadioBuff(){
   }
 }
 void WaitForAllOK(long long timeout_ms = 15000){
+  LedOff();
   Serial.println("Waiting for all OK"); 
   ClearRadioBuff();
   delay(1000);    //Ждем, чтоб все предыдущее закончилось
@@ -62,19 +68,31 @@ void WaitForAllOK(long long timeout_ms = 15000){
       switch (receivedData)
       {
       case 1:
-        if (nums[0] == false) count++;
+        if (nums[0] == false) {
+          count++;
+          LedOn(1);
+        }
         nums[0] = true;
         break;
       case 2:
-        if (nums[1] == false) count++;
+        if (nums[1] == false) {
+          count++;
+          LedOn(2);
+        }
         nums[1] = true;
         break;
       case 3:
-        if (nums[2] == false) count++;
+        if (nums[2] == false) {
+          count++;
+          LedOn(3);
+        }
         nums[2] = true;
         break;
       case 4:
-        if (nums[3] == false) count++;
+        if (nums[3] == false) {
+          count++;
+          LedOn(4);
+        }
         nums[3] = true;
         break;
       default:
@@ -155,6 +173,33 @@ void rampOpen(){
   delay(250);
 }
 
+void LedOff(){
+  digitalWrite(LED_BLUE, 0);
+  digitalWrite(LED_RED, 0);
+  digitalWrite(LED_YELLOW, 0);
+  digitalWrite(LED_GREEN, 0);
+}
+
+void LedOn(byte color){
+  switch (color)
+  {
+  case 4:
+    digitalWrite(LED_BLUE, 1);
+    break;
+  case 3:
+    digitalWrite(LED_RED, 1);
+    break;
+  case 1:
+    digitalWrite(LED_YELLOW, 1);
+    break;
+  case 2:
+    digitalWrite(LED_GREEN, 1);
+    break;
+  default:
+    break;
+  }
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -180,6 +225,11 @@ void setup() {
 
   pinMode(Button, INPUT_PULLUP);
 
+  pinMode(LED_BLUE, OUTPUT);
+  pinMode(LED_RED, OUTPUT);
+  pinMode(LED_YELLOW, OUTPUT);
+  pinMode(LED_GREEN, OUTPUT);
+
   rampServo.attach(ServoPin);
   
   rampServo.write(ramp_closed);
@@ -198,14 +248,14 @@ void setup() {
   // nextRadioByte = 10;
   // delay(400);
   
-  while (digitalRead(Button) == 1) {}
-  Serial.println("Button");
-  rampOpen();
-  LiftDown();
-  delay(1000);
-  LiftUp(200, false);
-  rampClose();
-  delay(1000);
+  // while (digitalRead(Button) == 1) {}
+  // Serial.println("Button");
+  // rampOpen();
+  // LiftDown();
+  // delay(1000);
+  // LiftUp(200, false);
+  // rampClose();
+  // delay(1000);
   
 
   //===Код для демонстрации===
@@ -213,13 +263,13 @@ void setup() {
 
   while (digitalRead(Button) == 1) {}
   Serial.println("Button");
-  delay(7000);
+  // delay(7000);
 
-  rampOpen();
+  // rampOpen();
   SendRadio();
-  delay(10000);
-  LiftDown();
-  delay(10000);
+  // delay(10000);
+  // LiftDown();
+  // delay(10000);
   // LiftUp();
   // rampClose();
   
@@ -232,7 +282,7 @@ void setup() {
   while (true){
     SendRadio();
     Serial.println(nextRadioByte);
-    if (nextRadioByte == 18) break;
+    // if (nextRadioByte == 18) break;
     WaitForAllOK();
   }
   delay(10000);
