@@ -142,13 +142,13 @@ void LiftDown(int maxSpeed = 255){
 
 void LiftUp(int maxSpeed = 255, bool plus_tachos = true){
   MotTachos = 0;  //Сбрасываем счётчик импульсов
-  if (plus_tachos) tachos_down += 500;
+  if (plus_tachos) tachos_down += 200;
   while (MotTachos < tachos_down){
     analogWrite(MotPWM, (int)maxSpeed);
     digitalWrite(MotA, HIGH);
     digitalWrite(MotB, LOW);
   }
-  if (plus_tachos) tachos_down -= 500;
+  if (plus_tachos) tachos_down -= 200;
   digitalWrite(MotA, 0);
   digitalWrite(MotB, 0);
 }
@@ -235,6 +235,17 @@ void setup() {
   rampServo.write(ramp_closed);
 
 
+  LedOn(4);
+  delay(50);
+  LedOn(3);
+  delay(50);
+  LedOn(1);
+  delay(50);
+  LedOn(2);
+  delay(50);
+  LedOff();
+
+
   //Поднятие в начале
   if (digitalRead(Button) == 0)   //Нажата
     LiftUp();
@@ -267,8 +278,8 @@ void setup() {
 
   // rampOpen();
   SendRadio();
-  // delay(10000);
-  // LiftDown();
+  delay(10000);
+  LiftDown();
   // delay(10000);
   // LiftUp();
   // rampClose();
