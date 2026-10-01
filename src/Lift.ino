@@ -18,6 +18,9 @@ const uint64_t pipe = 0xA85F57EF29LL;
 #define LED_RED A3
 #define LED_BLUE A2
 
+#define HC_SR04_TRIG A0
+#define HC_SR04_ECHO A1
+
 Servo rampServo;
 
 volatile long MotTachos = 0;
@@ -28,6 +31,9 @@ const byte ramp_open = 20;
 const byte ramp_closed = 122;
 
 byte nextRadioByte = 10;
+
+bool dontWaitMatreshkas[4] = {false, false, false, false};
+
 void SendRadio(){
   Serial.println("Sending: " + String(nextRadioByte));
   for (int i = 0; i < 10; i++){
@@ -56,6 +62,12 @@ void WaitForAllOK(long long timeout_ms = 15000){
 
   byte count = 0;
   bool nums[4] = {false, false, false, false};
+  for (int i = 0; i<4; i++){    //Не ждём матрешки, которые не присылали код в первый раз
+    nums[i] = dontWaitMatreshkas[i];
+    if (nums[i] == true){
+      count += 1;
+    }
+  }
   long long start_ms = millis();
   byte receivedData = 0;
 
@@ -101,6 +113,13 @@ void WaitForAllOK(long long timeout_ms = 15000){
     }
     delay(50);
   }
+
+  for (int i = 0; i<4; i++) {    //Если матрешка не прислала код, то не ждём её снова
+    if (nums[i] == false) {
+      dontWaitMatreshkas[i] = true;
+    }
+  }
+
   Serial.println("Count: " + String(count));
 
   radio.closeReadingPipe(0);
@@ -200,9 +219,35 @@ void LedOn(byte color){
   }
 }
 
+float read_HC_SR04(){     //Получить расстояние в сантиметрах
+  // digitalWrite(HC_SR04_TRIG, 1);
+  // delayMicroseconds(10);
+  // digitalWrite(HC_SR04_TRIG, 0);
+  // return pulseIn(HC_SR04_ECHO, 1) / 58;
+
+  
+  digitalWrite(HC_SR04_TRIG, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(HC_SR04_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(HC_SR04_TRIG, LOW);
+
+  long duration = pulseIn(HC_SR04_ECHO, HIGH);
+
+  float distance = duration / 58.3;
+
+  // if (distance == 0) distance = 1000;
+
+  return distance;
+}
 
 void setup() {
   Serial.begin(115200);
+
+  rampServo.attach(ServoPin);
+  rampServo.write(ramp_closed);
+
   radio.begin();
   radio.setChannel(0x67);
   radio.setDataRate(RF24_250KBPS);   // скорость 1 Мбит/с
@@ -230,10 +275,8 @@ void setup() {
   pinMode(LED_YELLOW, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
 
-  rampServo.attach(ServoPin);
-  
-  rampServo.write(ramp_closed);
-
+  pinMode(HC_SR04_TRIG, OUTPUT);
+  pinMode(HC_SR04_ECHO, INPUT);
 
   LedOn(4);
   delay(50);
@@ -274,9 +317,34 @@ void setup() {
 
   while (digitalRead(Button) == 1) {}
   Serial.println("Button");
-  // delay(7000);
 
-  // rampOpen();
+  delay(3000);
+  LedOn(1);
+  LedOn(2);
+  LedOn(3);
+  LedOn(4);
+  for (int i = 0; i<20; i++){   //Чтобы датчик нормально запустился
+    read_HC_SR04();
+    delay(40);
+  }
+  float prevPrevDist = 1000;
+  float prevDist = 1000;
+  float dist = read_HC_SR04();
+  while (true){
+    dist = read_HC_SR04();
+    if (dist < 15 && prevDist < 15 && prevPrevDist < 15) break;
+    Serial.println(dist);
+    delay(50);
+    prevPrevDist = prevDist;
+    prevDist = dist;
+  }
+  LedOff();
+  
+  // delay(1500);
+
+  delay(7000);
+
+  rampOpen();
   SendRadio();
   delay(10000);
   LiftDown();
