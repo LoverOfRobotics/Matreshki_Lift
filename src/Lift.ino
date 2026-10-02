@@ -342,7 +342,7 @@ void setup() {
   
   // delay(1500);
 
-  delay(7000);
+  delay(7000);      //ПОСТАВИТЬ 18000
 
   rampOpen();
   SendRadio();
@@ -361,15 +361,37 @@ void setup() {
   while (true){
     SendRadio();
     Serial.println(nextRadioByte);
-    // if (nextRadioByte == 18) break;
+    if (nextRadioByte == 18) break;
     WaitForAllOK();
+    delay(350);   //Чтобы матрешки успели закончить SendOK();
   }
   delay(10000);
   LiftUp();
 
-  //Ждём кнопку
+  //Ждём датчик
+  LedOn(1);
+  LedOn(2);
+  LedOn(3);
+  LedOn(4);
+  for (int i = 0; i<20; i++){   //Чтобы датчик нормально запустился
+    read_HC_SR04();
+    delay(40);
+  }
+  prevPrevDist = 1000;
+  prevDist = 1000;
+  dist = read_HC_SR04();
+  while (true){
+    dist = read_HC_SR04();
+    if (dist < 15 && prevDist < 15 && prevPrevDist < 15) break;
+    Serial.println(dist);
+    delay(50);
+    prevPrevDist = prevDist;
+    prevDist = dist;
+  }
+  LedOff();
+
   // while (digitalRead(Button) == 1) {}
-  delay(20000);
+  delay(6000);
   rampClose();
 
 }
